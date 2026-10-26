@@ -1,0 +1,10 @@
+name: ChaosAdmin
+version: 1.0.0
+main: com.chaossmp.chaosadmin.ChaosAdmin
+api-version: '1.21'
+description: Административная панель ChaosSMP
+
+commands:
+admin:
+description: Открыть панель администратора
+usage: /admin
