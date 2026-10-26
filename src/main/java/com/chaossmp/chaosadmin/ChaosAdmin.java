@@ -24,7 +24,7 @@ private static final String MENU_TITLE = ChatColor.DARK_RED + "ChaosAdmin";
 @Override
 public void onEnable() {
     Bukkit.getPluginManager().registerEvents(this, this);
-    getLogger().info("ChaosAdmin увімкнено!");
+    getLogger().info("ChaosAdmin включён!");
 }
 
 @Override
@@ -39,12 +39,12 @@ public boolean onCommand(
     }
 
     if (!(sender instanceof Player player)) {
-        sender.sendMessage("Цю команду може використовувати лише гравець.");
+        sender.sendMessage("Эту команду может использовать только игрок.");
         return true;
     }
 
     if (!player.isOp()) {
-        player.sendMessage(ChatColor.RED + "У тебе немає доступу до цієї панелі.");
+        player.sendMessage(ChatColor.RED + "У тебя нет доступа к этой панели.");
         return true;
     }
 
@@ -57,32 +57,32 @@ private void openAdminMenu(Player player) {
 
     inventory.setItem(10, createItem(
             Material.PLAYER_HEAD,
-            ChatColor.YELLOW + "Гравці",
-            "Перегляд гравців онлайн"
+            ChatColor.YELLOW + "Игроки",
+            "Просмотр игроков онлайн"
     ));
 
     inventory.setItem(12, createItem(
             Material.COMPASS,
-            ChatColor.GREEN + "Телепортація",
-            "Телепортація до гравців"
+            ChatColor.GREEN + "Телепортация",
+            "Телепортация к игрокам"
     ));
 
     inventory.setItem(14, createItem(
             Material.CLOCK,
-            ChatColor.AQUA + "Час",
-            "Встановити день"
+            ChatColor.AQUA + "Время",
+            "Установить день"
     ));
 
     inventory.setItem(16, createItem(
             Material.WEATHERED_COPPER,
             ChatColor.BLUE + "Погода",
-            "Змінити погоду"
+            "Изменить погоду"
     ));
 
     inventory.setItem(22, createItem(
             Material.BARRIER,
-            ChatColor.RED + "Закрити",
-            "Закрити адмінпанель"
+            ChatColor.RED + "Закрыть",
+            "Закрыть админ-панель"
     ));
 
     player.openInventory(inventory);
@@ -120,7 +120,7 @@ public void onMenuClick(InventoryClickEvent event) {
 
     switch (event.getRawSlot()) {
         case 10 -> {
-            player.sendMessage(ChatColor.GOLD + "Гравці онлайн: "
+            player.sendMessage(ChatColor.GOLD + "Игроков онлайн: "
                     + Bukkit.getOnlinePlayers().size());
 
             for (Player online : Bukkit.getOnlinePlayers()) {
@@ -128,17 +128,17 @@ public void onMenuClick(InventoryClickEvent event) {
             }
         }
         case 12 -> player.sendMessage(
-                ChatColor.GREEN + "Для телепортації використовуй /tp <гравець>"
+                ChatColor.GREEN + "Для телепортации используй /tp <игрок>"
         );
         case 14 -> {
             player.getWorld().setTime(1000);
-            player.sendMessage(ChatColor.AQUA + "Встановлено день.");
+            player.sendMessage(ChatColor.AQUA + "Установлен день.");
         }
         case 16 -> {
             boolean storm = !player.getWorld().hasStorm();
             player.getWorld().setStorm(storm);
             player.sendMessage(ChatColor.BLUE
-                    + (storm ? "Увімкнено дощ." : "Дощ вимкнено."));
+                    + (storm ? "Дождь включён." : "Дождь выключен."));
         }
         case 22 -> player.closeInventory();
         default -> {
