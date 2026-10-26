@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,130 +19,183 @@ import java.util.Arrays;
 
 public final class ChaosAdmin extends JavaPlugin implements Listener {
 
-    private static final String MENU_TITLE = ChatColor.DARK_RED + "ChaosAdmin";
+```
+private static final String MENU_TITLE =
+        ChatColor.DARK_RED + "ChaosAdmin";
 
-    @Override
-    public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(this, this);
-        getLogger().info("ChaosAdmin включён!");
+@Override
+public void onEnable() {
+    PluginCommand adminCommand = getCommand("admin");
+
+    if (adminCommand == null) {
+        getLogger().severe(
+                "Команда admin не найдена! Проверь plugin.yml."
+        );
+        getServer().getPluginManager().disablePlugin(this);
+        return;
     }
 
-    @Override
-    public boolean onCommand(
-            CommandSender sender,
-            Command command,
-            String label,
-            String[] args
-    ) {
-        if (!command.getName().equalsIgnoreCase("admin")) {
-            return false;
-        }
+    adminCommand.setExecutor(this);
+    getServer().getPluginManager().registerEvents(this, this);
 
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("Эту команду может использовать только игрок.");
-            return true;
-        }
+    getLogger().info("ChaosAdmin включён!");
+    getLogger().info("Команда /admin зарегистрирована.");
+}
 
-        if (!player.isOp()) {
-            player.sendMessage(ChatColor.RED + "У тебя нет доступа к этой панели.");
-            return true;
-        }
+@Override
+public boolean onCommand(
+        CommandSender sender,
+        Command command,
+        String label,
+        String[] args
+) {
+    if (!command.getName().equalsIgnoreCase("admin")) {
+        return false;
+    }
 
-        openAdminMenu(player);
+    if (!(sender instanceof Player player)) {
+        sender.sendMessage(
+                "Эту команду может использовать только игрок."
+        );
         return true;
     }
 
-    private void openAdminMenu(Player player) {
-        Inventory inventory = Bukkit.createInventory(null, 27, MENU_TITLE);
-
-        inventory.setItem(10, createItem(
-                Material.PLAYER_HEAD,
-                ChatColor.YELLOW + "Игроки",
-                "Просмотр игроков онлайн"
-        ));
-
-        inventory.setItem(12, createItem(
-                Material.COMPASS,
-                ChatColor.GREEN + "Телепортация",
-                "Телепортация к игрокам"
-        ));
-
-        inventory.setItem(14, createItem(
-                Material.CLOCK,
-                ChatColor.AQUA + "Время",
-                "Установить день"
-        ));
-
-        inventory.setItem(16, createItem(
-                Material.WEATHERED_COPPER,
-                ChatColor.BLUE + "Погода",
-                "Изменить погоду"
-        ));
-
-        inventory.setItem(22, createItem(
-                Material.BARRIER,
-                ChatColor.RED + "Закрыть",
-                "Закрыть админ-панель"
-        ));
-
-        player.openInventory(inventory);
+    if (!player.isOp()) {
+        player.sendMessage(
+                ChatColor.RED
+                        + "У тебя нет доступа к этой панели."
+        );
+        return true;
     }
 
-    private ItemStack createItem(Material material, String name, String lore) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
+    openAdminMenu(player);
+    return true;
+}
 
-        if (meta != null) {
-            meta.setDisplayName(name);
-            meta.setLore(Arrays.asList(ChatColor.GRAY + lore));
-            item.setItemMeta(meta);
-        }
+private void openAdminMenu(Player player) {
+    Inventory inventory =
+            Bukkit.createInventory(null, 27, MENU_TITLE);
 
-        return item;
+    inventory.setItem(10, createItem(
+            Material.PLAYER_HEAD,
+            ChatColor.YELLOW + "Игроки",
+            "Просмотр игроков онлайн"
+    ));
+
+    inventory.setItem(12, createItem(
+            Material.COMPASS,
+            ChatColor.GREEN + "Телепортация",
+            "Телепортация к игрокам"
+    ));
+
+    inventory.setItem(14, createItem(
+            Material.CLOCK,
+            ChatColor.AQUA + "Время",
+            "Установить день"
+    ));
+
+    inventory.setItem(16, createItem(
+            Material.WEATHERED_COPPER,
+            ChatColor.BLUE + "Погода",
+            "Изменить погоду"
+    ));
+
+    inventory.setItem(22, createItem(
+            Material.BARRIER,
+            ChatColor.RED + "Закрыть",
+            "Закрыть админ-панель"
+    ));
+
+    player.openInventory(inventory);
+}
+
+private ItemStack createItem(
+        Material material,
+        String name,
+        String lore
+) {
+    ItemStack item = new ItemStack(material);
+    ItemMeta meta = item.getItemMeta();
+
+    if (meta != null) {
+        meta.setDisplayName(name);
+        meta.setLore(
+                Arrays.asList(ChatColor.GRAY + lore)
+        );
+        item.setItemMeta(meta);
     }
 
-    @EventHandler
-    public void onMenuClick(InventoryClickEvent event) {
-        if (!MENU_TITLE.equals(event.getView().getTitle())) {
-            return;
-        }
+    return item;
+}
 
-        event.setCancelled(true);
+@EventHandler
+public void onMenuClick(InventoryClickEvent event) {
+    if (!MENU_TITLE.equals(event.getView().getTitle())) {
+        return;
+    }
 
-        if (!(event.getWhoClicked() instanceof Player player)) {
-            return;
-        }
+    event.setCancelled(true);
 
-        if (!player.isOp()) {
-            player.closeInventory();
-            return;
-        }
+    if (!(event.getWhoClicked() instanceof Player player)) {
+        return;
+    }
 
-        switch (event.getRawSlot()) {
-            case 10 -> {
-                player.sendMessage(ChatColor.GOLD + "Игроков онлайн: "
-                        + Bukkit.getOnlinePlayers().size());
+    if (!player.isOp()) {
+        player.closeInventory();
+        player.sendMessage(
+                ChatColor.RED + "Доступ запрещён."
+        );
+        return;
+    }
 
-                for (Player online : Bukkit.getOnlinePlayers()) {
-                    player.sendMessage(ChatColor.YELLOW + "- " + online.getName());
-                }
-            }
-            case 12 -> player.sendMessage(
-                    ChatColor.GREEN + "Для телепортации используй /tp <игрок>"
+    switch (event.getRawSlot()) {
+        case 10 -> {
+            player.sendMessage(
+                    ChatColor.GOLD
+                            + "Игроков онлайн: "
+                            + Bukkit.getOnlinePlayers().size()
             );
-            case 14 -> {
-                player.getWorld().setTime(1000);
-                player.sendMessage(ChatColor.AQUA + "Установлен день.");
-            }
-            case 16 -> {
-                boolean storm = !player.getWorld().hasStorm();
-                player.getWorld().setStorm(storm);
-                player.sendMessage(ChatColor.BLUE
-                        + (storm ? "Дождь включён." : "Дождь выключен."));
-            }
-            case 22 -> player.closeInventory();
-            default -> {
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(
+                        ChatColor.YELLOW + "- "
+                                + online.getName()
+                );
             }
         }
+
+        case 12 -> player.sendMessage(
+                ChatColor.GREEN
+                        + "Используй /tp <игрок> для телепортации."
+        );
+
+        case 14 -> {
+            player.getWorld().setTime(1000);
+            player.sendMessage(
+                    ChatColor.AQUA + "Установлен день."
+            );
+        }
+
+        case 16 -> {
+            boolean storm =
+                    !player.getWorld().hasStorm();
+
+            player.getWorld().setStorm(storm);
+
+            player.sendMessage(
+                    ChatColor.BLUE
+                            + (storm
+                            ? "Дождь включён."
+                            : "Дождь выключен.")
+            );
+        }
+
+        case 22 -> player.closeInventory();
+
+        default -> {
+        }
     }
+}
+```
+
 }
