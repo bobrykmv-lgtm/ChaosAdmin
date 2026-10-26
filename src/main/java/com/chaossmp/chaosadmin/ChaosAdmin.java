@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 public final class ChaosAdmin extends JavaPlugin implements Listener {
 
-```
 private static final String MENU_TITLE =
         ChatColor.DARK_RED + "ChaosAdmin";
 
@@ -196,6 +195,5 @@ public void onMenuClick(InventoryClickEvent event) {
         }
     }
 }
-```
 
 }
